@@ -32,11 +32,9 @@ const App: React.FC = () => {
   const [deck, setDeck]: any[] = useState(standardDeck);
 
   const [userCards, setUserCards]: any[] = useState([]);
-  const [userScore, setUserScore] = useState(0);
   const [userCount, setUserCount] = useState(0);
 
   const [dealerCards, setDealerCards]: any[] = useState([]);
-  const [dealerScore, setDealerScore] = useState(0);
   const [dealerCount, setDealerCount] = useState(0);
 
   const [balance, setBalance] = useState(100);
@@ -50,16 +48,17 @@ const App: React.FC = () => {
     resetDisabled: true
   });
 
+  const dealerScore = calculateHandValue(dealerCards)
+  const userScore = calculateHandValue(userCards)
+
   const resetGame = () => {
     console.clear();
     setDeck(standardDeck);
 
     setUserCards([]);
-    setUserScore(0);
     setUserCount(0);
 
     setDealerCards([]);
-    setDealerScore(0);
     setDealerCount(0);
 
     setBet(0);
@@ -137,10 +136,6 @@ const App: React.FC = () => {
     setDealerCards([...dealerCards])
   }
 
-  const calculate = (cards: any[], setScore: any) => {
-    setScore(calculateHandValue(cards));
-  }
-
   const hit = () => {
     drawCard(Deal.user);
   }
@@ -189,12 +184,10 @@ const App: React.FC = () => {
   }, [drawCard, gameState]);
 
   useEffect(() => {
-    calculate(userCards, setUserScore);
     setUserCount(userCount + 1);
   }, [userCards, userCount]);
 
   useEffect(() => {
-    calculate(dealerCards, setDealerScore);
     setDealerCount(dealerCount + 1);
   }, [dealerCards, dealerCount]);
 
