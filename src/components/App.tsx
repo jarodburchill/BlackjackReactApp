@@ -33,10 +33,7 @@ const App: React.FC = () => {
   const [deck, setDeck] = useState<Card[]>(standardDeck);
 
   const [userCards, setUserCards] = useState<Card[]>([]);
-  const [userCount, setUserCount] = useState(0);
-
   const [dealerCards, setDealerCards] = useState<Card[]>([]);
-  const [dealerCount, setDealerCount] = useState(0);
 
   const [balance, setBalance] = useState(100);
   const [bet, setBet] = useState(0);
@@ -57,10 +54,8 @@ const App: React.FC = () => {
     setDeck(standardDeck);
 
     setUserCards([]);
-    setUserCount(0);
 
     setDealerCards([]);
-    setDealerCount(0);
 
     setBet(0);
 
@@ -179,14 +174,6 @@ const App: React.FC = () => {
   }, [drawCard, gameState]);
 
   useEffect(() => {
-    setUserCount(userCount + 1);
-  }, [userCards, userCount]);
-
-  useEffect(() => {
-    setDealerCount(dealerCount + 1);
-  }, [dealerCards, dealerCount]);
-
-  useEffect(() => {
     if (gameState === GameState.userTurn) {
       if (userScore === 21) {
         setButtonState({ ...buttonState, hitDisabled: true });
@@ -195,7 +182,7 @@ const App: React.FC = () => {
         bust();
       }
     }
-  }, [bust, buttonState, gameState, userCount, userScore]);
+  }, [bust, buttonState, gameState, userScore]);
 
   useEffect(() => {
     if (gameState === GameState.dealerTurn) {
@@ -206,7 +193,7 @@ const App: React.FC = () => {
         drawCard(Deal.dealer);
       }
     }
-  }, [checkWin, drawCard, dealerCount, dealerScore, gameState]);
+  }, [checkWin, drawCard, dealerScore, gameState]);
 
   return (
     <>
