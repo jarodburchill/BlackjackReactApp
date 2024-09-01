@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Status from './Status';
 import Controls from './Controls';
 import Hand from './Hand';
@@ -9,7 +9,8 @@ enum GameState {
   bet,
   init,
   userTurn,
-  dealerTurn
+  dealerTurn,
+  handEnded
 }
 
 enum Deal {
@@ -78,7 +79,26 @@ const App: React.FC = () => {
     setGameState(GameState.init);
   }
 
-  const drawCard = (dealType: Deal) => {
+  const dealCard = useCallback((dealType: Deal, value: string, suit: string) => {
+    switch (dealType) {
+      case Deal.user:
+        userCards.push({ 'value': value, 'suit': suit, 'hidden': false });
+        setUserCards([...userCards]);
+        break;
+      case Deal.dealer:
+        dealerCards.push({ 'value': value, 'suit': suit, 'hidden': false });
+        setDealerCards([...dealerCards]);
+        break;
+      case Deal.hidden:
+        dealerCards.push({ 'value': value, 'suit': suit, 'hidden': true });
+        setDealerCards([...dealerCards]);
+        break;
+      default:
+        break;
+    }
+  }, [dealerCards, userCards])
+
+  const drawCard = useCallback((dealType: Deal) => {
     if (deck.length > 0) {
       const randomIndex = Math.floor(Math.random() * deck.length);
       const card = deck[randomIndex];
@@ -105,26 +125,7 @@ const App: React.FC = () => {
     else {
       alert('All cards have been drawn');
     }
-  }
-
-  const dealCard = (dealType: Deal, value: string, suit: string) => {
-    switch (dealType) {
-      case Deal.user:
-        userCards.push({ 'value': value, 'suit': suit, 'hidden': false });
-        setUserCards([...userCards]);
-        break;
-      case Deal.dealer:
-        dealerCards.push({ 'value': value, 'suit': suit, 'hidden': false });
-        setDealerCards([...dealerCards]);
-        break;
-      case Deal.hidden:
-        dealerCards.push({ 'value': value, 'suit': suit, 'hidden': true });
-        setDealerCards([...dealerCards]);
-        break;
-      default:
-        break;
-    }
-  }
+  }, [dealCard, deck])
 
   const revealCard = () => {
     dealerCards.filter((card: any) => {
@@ -153,27 +154,28 @@ const App: React.FC = () => {
     revealCard();
   }
 
-  const bust = () => {
+  const bust = useCallback(() => {
     buttonState.hitDisabled = true;
     buttonState.standDisabled = true;
     buttonState.resetDisabled = false;
     setButtonState({ ...buttonState });
     setMessage(Message.bust);
-  }
+  }, [buttonState])
 
-  const checkWin = () => {
+  const checkWin = useCallback(() => {
     if (userScore > dealerScore || dealerScore > 21) {
-      setBalance(Math.round((balance + (bet * 2)) * 100) / 100);
+      setBalance(currentBalance => Math.round((currentBalance + (bet * 2)) * 100) / 100);
       setMessage(Message.userWin);
+      setGameState(GameState.handEnded);
     }
     else if (dealerScore > userScore) {
       setMessage(Message.dealerWin);
     }
     else {
-      setBalance(Math.round((balance + (bet * 1)) * 100) / 100);
+      setBalance(currentBalance => Math.round((currentBalance + (bet * 1)) * 100) / 100);
       setMessage(Message.tie);
     }
-  }
+  }, [bet, dealerScore, userScore])
 
   useEffect(() => {
     if (gameState === GameState.init) {
@@ -184,17 +186,17 @@ const App: React.FC = () => {
       setGameState(GameState.userTurn);
       setMessage(Message.hitStand);
     }
-  }, [gameState]);
+  }, [drawCard, gameState]);
 
   useEffect(() => {
     calculate(userCards, setUserScore);
     setUserCount(userCount + 1);
-  }, [userCards]);
+  }, [userCards, userCount]);
 
   useEffect(() => {
     calculate(dealerCards, setDealerScore);
     setDealerCount(dealerCount + 1);
-  }, [dealerCards]);
+  }, [dealerCards, dealerCount]);
 
   useEffect(() => {
     if (gameState === GameState.userTurn) {
@@ -206,7 +208,7 @@ const App: React.FC = () => {
         bust();
       }
     }
-  }, [userCount]);
+  }, [bust, buttonState, gameState, userCount, userScore]);
 
   useEffect(() => {
     if (gameState === GameState.dealerTurn) {
@@ -217,7 +219,7 @@ const App: React.FC = () => {
         drawCard(Deal.dealer);
       }
     }
-  }, [dealerCount]);
+  }, [checkWin, dealerCount, dealerScore, drawCard, gameState]);
 
   return (
     <>
