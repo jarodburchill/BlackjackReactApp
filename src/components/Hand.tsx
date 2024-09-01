@@ -1,10 +1,11 @@
 import React from 'react';
 import styles from './styles/Hand.module.css';
-import Card from './Card';
+import CardComponent from './Card';
+import Card from '../card';
 
 type HandProps = {
   title: string,
-  cards: any[]
+  cards: Card[]
 };
 
 const Hand: React.FC<HandProps> = ({ title, cards }) => {
@@ -21,7 +22,7 @@ const Hand: React.FC<HandProps> = ({ title, cards }) => {
       <div className={styles.cardContainer}>
         {cards.map((card: any, index: number) => {
           return (
-            <Card key={index} value={card.value} suit={card.suit} hidden={card.hidden} />
+            <CardComponent key={index} value={card.value} suit={card.suit} hidden={card.hidden} />
           );
         })}
       </div>

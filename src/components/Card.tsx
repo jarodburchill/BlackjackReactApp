@@ -1,13 +1,9 @@
 import React from 'react';
+import Card from '../card';
 import styles from './styles/Card.module.css';
 
-type CardProps = {
-  value: string;
-  suit: string;
-  hidden: boolean;
-};
-
-const Card: React.FC<CardProps> = ({ value, suit, hidden }) => {
+// TODO: rename?
+const CardComponent: React.FC<Card> = ({ value, suit, hidden }) => {
   const getColor = () => {
     if (suit === '♠' || suit === '♣') {
       return styles.black;
@@ -42,4 +38,4 @@ const Card: React.FC<CardProps> = ({ value, suit, hidden }) => {
   );
 }
 
-export default Card;
+export default CardComponent;
