@@ -4,37 +4,36 @@ import styles from './styles/Controls.module.css';
 type ControlsProps = {
   balance: number,
   gameState: number,
-  buttonState: {hitDisabled: boolean, standDisabled: boolean, resetDisabled: boolean},
+  buttonState: { hitDisabled: boolean, standDisabled: boolean, resetDisabled: boolean },
   onBet: (amount: number) => void,
   onHit: () => void,
   onStand: () => void,
   onReset: () => void
 };
 
+const validateBet = (betAmount: number, balance: number) => {
+  return betAmount <= balance && betAmount >= 0.01
+}
+
 const Controls: React.FC<ControlsProps> = ({ balance, gameState, buttonState, onBet: betEvent, onHit: hitEvent, onStand: standEvent, onReset: resetEvent }) => {
   const [amount, setAmount] = useState(10);
   const [inputStyle, setInputStyle] = useState(styles.input);
 
   useEffect(() => {
-    validation();
+    if (validateBet(amount, balance) === false) {
+      setInputStyle(styles.inputError);
+    } else {
+      setInputStyle(styles.input);
+    }
   }, [amount, balance]);
 
-  const validation = () => {
-    if (amount > balance) {
-      setInputStyle(styles.inputError);
-      return false;
-    }
-    if (amount < 0.01) {
-      setInputStyle(styles.inputError);
-      return false;
-    }
-    setInputStyle(styles.input);
-    return true;
-  }
-
   const onBetClick = () => {
-    if (validation()) {
+    if (validateBet(amount, balance) === false) {
+      setInputStyle(styles.inputError);
+    } else {
       betEvent(Math.round(amount * 100) / 100);
+
+      setInputStyle(styles.input);
     }
   }
 
