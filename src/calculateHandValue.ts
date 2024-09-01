@@ -1,44 +1,30 @@
 import Card from './card'
 
+const faceCards = ['K', 'Q', 'J']
+
 const calculateHandValue = (cards: Card[]) => {
   let total = 0;
-  cards.forEach((card: any) => {
-    if (card.hidden === false && card.value !== 'A') {
-      switch (card.value) {
-        case 'K':
-          total += 10;
-          break;
-        case 'Q':
-          total += 10;
-          break;
-        case 'J':
-          total += 10;
-          break;
-        default:
-          total += Number(card.value);
-          break;
-      }
+  const visibleCards = cards.filter(card => !card.hidden)
+  visibleCards.forEach((card) => {
+    if (card.value !== 'A') {
+      total += faceCards.includes(card.value) ? 10 : Number(card.value);
     }
   });
-  const aces = cards.filter((card: any) => {
-    return card.value === 'A';
-  });
-  aces.forEach((card: any) => {
-    if (card.hidden === false) {
-      if ((total + 11) > 21) {
+  const aces = visibleCards.filter((card) => card.value === 'A');
+  aces.forEach((card) => {
+    if ((total + 11) > 21) {
+      total += 1;
+    }
+    else if ((total + 11) === 21) {
+      if (aces.length > 1) {
         total += 1;
-      }
-      else if ((total + 11) === 21) {
-        if (aces.length > 1) {
-          total += 1;
-        }
-        else {
-          total += 11;
-        }
       }
       else {
         total += 11;
       }
+    }
+    else {
+      total += 11;
     }
   });
 
