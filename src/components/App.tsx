@@ -142,21 +142,15 @@ const App: React.FC = () => {
   }
 
   const stand = () => {
-    buttonState.hitDisabled = true;
-    buttonState.standDisabled = true;
-    buttonState.resetDisabled = false;
-    setButtonState({ ...buttonState });
+    setButtonState({ hitDisabled: true, standDisabled: true, resetDisabled: false });
     setGameState(GameState.dealerTurn);
     revealCard();
   }
 
   const bust = useCallback(() => {
-    buttonState.hitDisabled = true;
-    buttonState.standDisabled = true;
-    buttonState.resetDisabled = false;
-    setButtonState({ ...buttonState });
+    setButtonState({ hitDisabled: true, standDisabled: true, resetDisabled: false });
     setMessage(Message.bust);
-  }, [buttonState])
+  }, [])
 
   const checkWin = useCallback(() => {
     if (userScore > dealerScore || dealerScore > 21) {
@@ -195,8 +189,7 @@ const App: React.FC = () => {
   useEffect(() => {
     if (gameState === GameState.userTurn) {
       if (userScore === 21) {
-        buttonState.hitDisabled = true;
-        setButtonState({ ...buttonState });
+        setButtonState({ ...buttonState, hitDisabled: true });
       }
       else if (userScore > 21) {
         bust();
