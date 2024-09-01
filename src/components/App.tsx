@@ -49,50 +49,6 @@ const App: React.FC = () => {
     resetDisabled: true
   });
 
-  useEffect(() => {
-    if (gameState === GameState.init) {
-      drawCard(Deal.user);
-      drawCard(Deal.hidden);
-      drawCard(Deal.user);
-      drawCard(Deal.dealer);
-      setGameState(GameState.userTurn);
-      setMessage(Message.hitStand);
-    }
-  }, [gameState]);
-
-  useEffect(() => {
-    calculate(userCards, setUserScore);
-    setUserCount(userCount + 1);
-  }, [userCards]);
-
-  useEffect(() => {
-    calculate(dealerCards, setDealerScore);
-    setDealerCount(dealerCount + 1);
-  }, [dealerCards]);
-
-  useEffect(() => {
-    if (gameState === GameState.userTurn) {
-      if (userScore === 21) {
-        buttonState.hitDisabled = true;
-        setButtonState({ ...buttonState });
-      }
-      else if (userScore > 21) {
-        bust();
-      }
-    }
-  }, [userCount]);
-
-  useEffect(() => {
-    if (gameState === GameState.dealerTurn) {
-      if (dealerScore >= 17) {
-        checkWin();
-      }
-      else {
-        drawCard(Deal.dealer);
-      }
-    }
-  }, [dealerCount]);
-
   const resetGame = () => {
     console.clear();
     setDeck(standardDeck);
@@ -218,6 +174,50 @@ const App: React.FC = () => {
       setMessage(Message.tie);
     }
   }
+
+  useEffect(() => {
+    if (gameState === GameState.init) {
+      drawCard(Deal.user);
+      drawCard(Deal.hidden);
+      drawCard(Deal.user);
+      drawCard(Deal.dealer);
+      setGameState(GameState.userTurn);
+      setMessage(Message.hitStand);
+    }
+  }, [gameState]);
+
+  useEffect(() => {
+    calculate(userCards, setUserScore);
+    setUserCount(userCount + 1);
+  }, [userCards]);
+
+  useEffect(() => {
+    calculate(dealerCards, setDealerScore);
+    setDealerCount(dealerCount + 1);
+  }, [dealerCards]);
+
+  useEffect(() => {
+    if (gameState === GameState.userTurn) {
+      if (userScore === 21) {
+        buttonState.hitDisabled = true;
+        setButtonState({ ...buttonState });
+      }
+      else if (userScore > 21) {
+        bust();
+      }
+    }
+  }, [userCount]);
+
+  useEffect(() => {
+    if (gameState === GameState.dealerTurn) {
+      if (dealerScore >= 17) {
+        checkWin();
+      }
+      else {
+        drawCard(Deal.dealer);
+      }
+    }
+  }, [dealerCount]);
 
   return (
     <>
