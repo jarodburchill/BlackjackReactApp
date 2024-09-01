@@ -1,7 +1,7 @@
 import React from 'react';
 import styles from './styles/Hand.module.css';
 import CardComponent from './Card';
-import Card from '../card';
+import {Card} from '../sharedTypes';
 
 type HandProps = {
   title: string,

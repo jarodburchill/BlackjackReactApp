@@ -1,4 +1,4 @@
-import Card from './card'
+import {Card} from './sharedTypes'
 
 const faceCards = ['K', 'Q', 'J']
 

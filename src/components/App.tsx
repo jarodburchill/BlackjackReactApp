@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Status from './Status';
 import Controls from './Controls';
 import Hand from './Hand';
-import Card from '../card'
+import {Card, Suit} from '../sharedTypes'
 import standardDeck from '../deck';
 import calculateHandValue from '../calculateHandValue';
 
@@ -74,7 +74,7 @@ const App: React.FC = () => {
     setGameState(GameState.init);
   }
 
-  const dealCard = useCallback((dealType: Deal, value: string, suit: string) => {
+  const dealCard = useCallback((dealType: Deal, value: string, suit: Suit) => {
     switch (dealType) {
       case Deal.user:
         userCards.push({ 'value': value, 'suit': suit, 'hidden': false });
@@ -100,22 +100,7 @@ const App: React.FC = () => {
       deck.splice(randomIndex, 1);
       setDeck([...deck]);
       console.log('Remaining Cards:', deck.length);
-      switch (card.suit) {
-        case 'spades':
-          dealCard(dealType, card.value, '♠');
-          break;
-        case 'diamonds':
-          dealCard(dealType, card.value, '♦');
-          break;
-        case 'clubs':
-          dealCard(dealType, card.value, '♣');
-          break;
-        case 'hearts':
-          dealCard(dealType, card.value, '♥');
-          break;
-        default:
-          break;
-      }
+      dealCard(dealType, card.value, card.suit);
     }
     else {
       alert('All cards have been drawn');
