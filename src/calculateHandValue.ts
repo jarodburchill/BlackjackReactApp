@@ -1,4 +1,6 @@
-const calculateHandValue = (cards: any[]) => {
+import Card from './card'
+
+const calculateHandValue = (cards: Card[]) => {
   let total = 0;
   cards.forEach((card: any) => {
     if (card.hidden === false && card.value !== 'A') {

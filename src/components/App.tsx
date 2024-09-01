@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Status from './Status';
 import Controls from './Controls';
 import Hand from './Hand';
-import standardDeck from '../deck.js';
+import Card from '../card'
+import standardDeck from '../deck';
 import calculateHandValue from '../calculateHandValue';
 
 enum GameState {
@@ -29,12 +30,12 @@ enum Message {
 }
 
 const App: React.FC = () => {
-  const [deck, setDeck]: any[] = useState(standardDeck);
+  const [deck, setDeck] = useState<Card[]>(standardDeck);
 
-  const [userCards, setUserCards]: any[] = useState([]);
+  const [userCards, setUserCards] = useState<Card[]>([]);
   const [userCount, setUserCount] = useState(0);
 
-  const [dealerCards, setDealerCards]: any[] = useState([]);
+  const [dealerCards, setDealerCards] = useState<Card[]>([]);
   const [dealerCount, setDealerCount] = useState(0);
 
   const [balance, setBalance] = useState(100);
@@ -212,7 +213,7 @@ const App: React.FC = () => {
         drawCard(Deal.dealer);
       }
     }
-  }, [checkWin, dealerCount, dealerScore, drawCard, gameState]);
+  }, [checkWin, drawCard, dealerCount, dealerScore, gameState]);
 
   return (
     <>
