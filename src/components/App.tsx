@@ -187,10 +187,10 @@ const App: React.FC = () => {
         balance={balance}
         gameState={gameState}
         buttonState={buttonState}
-        betEvent={placeBet}
-        hitEvent={hit}
-        standEvent={stand}
-        resetEvent={resetGame}
+        onBet={placeBet}
+        onHit={hit}
+        onStand={stand}
+        onReset={resetGame}
       />
       <Hand title={`Dealer's Hand (${dealerScore})`} cards={dealerCards} />
       <Hand title={`Your Hand (${userScore})`} cards={userCards} />

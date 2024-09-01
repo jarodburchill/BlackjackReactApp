@@ -5,13 +5,13 @@ type ControlsProps = {
   balance: number,
   gameState: number,
   buttonState: {hitDisabled: boolean, standDisabled: boolean, resetDisabled: boolean},
-  betEvent: (amount: number) => void,
-  hitEvent: () => void,
-  standEvent: () => void,
-  resetEvent: () => void
+  onBet: (amount: number) => void,
+  onHit: () => void,
+  onStand: () => void,
+  onReset: () => void
 };
 
-const Controls: React.FC<ControlsProps> = ({ balance, gameState, buttonState, betEvent, hitEvent, standEvent, resetEvent }) => {
+const Controls: React.FC<ControlsProps> = ({ balance, gameState, buttonState, onBet: betEvent, onHit: hitEvent, onStand: standEvent, onReset: resetEvent }) => {
   const [amount, setAmount] = useState(10);
   const [inputStyle, setInputStyle] = useState(styles.input);
 
