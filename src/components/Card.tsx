@@ -20,29 +20,20 @@ const CardComponent: React.FC<Card> = ({ value, suit, hidden }) => {
     }
   }
 
-  const getCard = () => {
-    if (hidden) {
-      return (
-        <div className={styles.hiddenCard} />
-      );
-    }
-    else {
-      return (
-        <div className={styles.card}>
-          <div className={getColor()}>
-            <h1 className={styles.value}>{value}</h1>
-            <h1 className={styles[suitIcons[suit]]}>{suitIcons[suit]}</h1>
-          </div>
+  if (hidden) {
+    return (
+      <div className={styles.hiddenCard} />
+    );
+  } else {
+    return (
+      <div className={styles.card}>
+        <div className={getColor()}>
+          <h1 className={styles.value}>{value}</h1>
+          <h1 className={styles[suitIcons[suit]]}>{suitIcons[suit]}</h1>
         </div>
-      );
-    }
+      </div>
+    );
   }
-
-  return (
-    <>
-      {getCard()}
-    </>
-  );
 }
 
 export default CardComponent;
