@@ -128,7 +128,7 @@ const App: React.FC = () => {
   }, [dealCard, deck])
 
   const revealCard = () => {
-    dealerCards.filter((card: any) => {
+    dealerCards.filter((card) => {
       if (card.hidden === true) {
         card.hidden = false;
       }
