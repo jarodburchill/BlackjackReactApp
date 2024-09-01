@@ -176,13 +176,13 @@ const App: React.FC = () => {
   useEffect(() => {
     if (gameState === GameState.userTurn) {
       if (userScore === 21) {
-        setButtonState({ ...buttonState, hitDisabled: true });
+        setButtonState(prevButtonState => ({ ...prevButtonState, hitDisabled: true }));
       }
       else if (userScore > 21) {
         bust();
       }
     }
-  }, [bust, buttonState, gameState, userScore]);
+  }, [bust, gameState, userScore]);
 
   useEffect(() => {
     if (gameState === GameState.dealerTurn) {
