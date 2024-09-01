@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Status from './Status';
 import Controls from './Controls';
 import Hand from './Hand';
-import jsonData from '../deck.json';
+import standardDeck from '../deck.js';
 
 const App: React.FC = () => {
   enum GameState {
@@ -27,8 +27,7 @@ const App: React.FC = () => {
     tie = 'Tie!'
   }
 
-  const data = JSON.parse(JSON.stringify(jsonData.cards));
-  const [deck, setDeck]: any[] = useState(data);
+  const [deck, setDeck]: any[] = useState(standardDeck);
 
   const [userCards, setUserCards]: any[] = useState([]);
   const [userScore, setUserScore] = useState(0);
@@ -95,7 +94,7 @@ const App: React.FC = () => {
 
   const resetGame = () => {
     console.clear();
-    setDeck(data);
+    setDeck(standardDeck);
 
     setUserCards([]);
     setUserScore(0);
