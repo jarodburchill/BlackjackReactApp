@@ -15,7 +15,9 @@ const validateBet = (betAmount: number, balance: number) => {
   return betAmount <= balance && betAmount >= 0.01
 }
 
-const Controls: React.FC<ControlsProps> = ({ balance, gameState, buttonState, onBet: betEvent, onHit: hitEvent, onStand: standEvent, onReset: resetEvent }) => {
+const Controls: React.FC<ControlsProps> = (
+  { balance, gameState, buttonState, onBet, onHit, onStand, onReset }
+) => {
   const [amount, setAmount] = useState(10);
   const [inputStyle, setInputStyle] = useState(styles.input);
 
@@ -31,7 +33,7 @@ const Controls: React.FC<ControlsProps> = ({ balance, gameState, buttonState, on
     if (validateBet(amount, balance) === false) {
       setInputStyle(styles.inputError);
     } else {
-      betEvent(Math.round(amount * 100) / 100);
+      onBet(Math.round(amount * 100) / 100);
 
       setInputStyle(styles.input);
     }
@@ -53,9 +55,9 @@ const Controls: React.FC<ControlsProps> = ({ balance, gameState, buttonState, on
   } else {
     return (
       <div className={styles.controlsContainer}>
-        <button onClick={() => hitEvent()} disabled={buttonState.hitDisabled} className={styles.button}>Hit</button>
-        <button onClick={() => standEvent()} disabled={buttonState.standDisabled} className={styles.button}>Stand</button>
-        <button onClick={() => resetEvent()} disabled={buttonState.resetDisabled} className={styles.button}>Reset</button>
+        <button onClick={() => onHit()} disabled={buttonState.hitDisabled} className={styles.button}>Hit</button>
+        <button onClick={() => onStand()} disabled={buttonState.standDisabled} className={styles.button}>Stand</button>
+        <button onClick={() => onReset()} disabled={buttonState.resetDisabled} className={styles.button}>Reset</button>
       </div>
     );
   }
