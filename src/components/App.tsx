@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import Status from './Status';
 import Controls from './Controls';
 import Hand from './Hand';
-import {Card, Suit} from '../sharedTypes'
+import { Card, Suit } from '../sharedTypes'
 import standardDeck from '../deck';
 import calculateHandValue from '../calculateHandValue';
 
@@ -75,21 +75,12 @@ const App: React.FC = () => {
   }
 
   const dealCard = useCallback((dealType: Deal, value: string, suit: Suit) => {
-    switch (dealType) {
-      case Deal.user:
-        userCards.push({ 'value': value, 'suit': suit, 'hidden': false });
-        setUserCards([...userCards]);
-        break;
-      case Deal.dealer:
-        dealerCards.push({ 'value': value, 'suit': suit, 'hidden': false });
-        setDealerCards([...dealerCards]);
-        break;
-      case Deal.hidden:
-        dealerCards.push({ 'value': value, 'suit': suit, 'hidden': true });
-        setDealerCards([...dealerCards]);
-        break;
-      default:
-        break;
+    if (dealType === Deal.user) {
+      userCards.push({ 'value': value, 'suit': suit, 'hidden': false });
+      setUserCards([...userCards]);
+    } else {
+      dealerCards.push({ 'value': value, 'suit': suit, 'hidden': dealType === Deal.hidden });
+      setDealerCards([...dealerCards]);
     }
   }, [dealerCards, userCards])
 
@@ -101,20 +92,13 @@ const App: React.FC = () => {
       setDeck([...deck]);
       console.log('Remaining Cards:', deck.length);
       dealCard(dealType, card.value, card.suit);
-    }
-    else {
+    } else {
       alert('All cards have been drawn');
     }
   }, [dealCard, deck])
 
   const revealCard = () => {
-    dealerCards.filter((card) => {
-      if (card.hidden === true) {
-        card.hidden = false;
-      }
-      return card;
-    });
-    setDealerCards([...dealerCards])
+    setDealerCards([...dealerCards.map(card => ({...card, hidden: false}))])
   }
 
   const hit = () => {
