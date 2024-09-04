@@ -4,72 +4,63 @@ import styles from './styles/Controls.module.css';
 type ControlsProps = {
   balance: number,
   gameState: number,
-  buttonState: any,
-  betEvent: any,
-  hitEvent: any,
-  standEvent: any,
-  resetEvent: any
+  buttonState: { hitDisabled: boolean, standDisabled: boolean, resetDisabled: boolean },
+  onBet: (amount: number) => void,
+  onHit: () => void,
+  onStand: () => void,
+  onReset: () => void
 };
 
-const Controls: React.FC<ControlsProps> = ({ balance, gameState, buttonState, betEvent, hitEvent, standEvent, resetEvent }) => {
+const validateBet = (betAmount: number, balance: number) => {
+  return betAmount <= balance && betAmount >= 0.01
+}
+
+const Controls: React.FC<ControlsProps> = (
+  { balance, gameState, buttonState, onBet, onHit, onStand, onReset }
+) => {
   const [amount, setAmount] = useState(10);
   const [inputStyle, setInputStyle] = useState(styles.input);
 
   useEffect(() => {
-    validation();
+    if (validateBet(amount, balance) === false) {
+      setInputStyle(styles.inputError);
+    } else {
+      setInputStyle(styles.input);
+    }
   }, [amount, balance]);
 
-  const validation = () => {
-    if (amount > balance) {
-      setInputStyle(styles.inputError);
-      return false;
-    }
-    if (amount < 0.01) {
-      setInputStyle(styles.inputError);
-      return false;
-    }
-    setInputStyle(styles.input);
-    return true;
-  }
-
-  const amountChange = (e: any) => {
-    setAmount(e.target.value);
-  }
-
   const onBetClick = () => {
-    if (validation()) {
-      betEvent(Math.round(amount * 100) / 100);
+    if (validateBet(amount, balance) === false) {
+      setInputStyle(styles.inputError);
+    } else {
+      onBet(Math.round(amount * 100) / 100);
+
+      setInputStyle(styles.input);
     }
   }
 
-  const getControls = () => {
-    if (gameState === 0) {
-      return (
-        <div className={styles.controlsContainer}>
-          <div className={styles.betContainer}>
-            <h4>Amount:</h4>
-            <input autoFocus type='number' value={amount} onChange={amountChange} className={inputStyle} />
-          </div>
-          <button onClick={() => onBetClick()} className={styles.button}>Bet</button>
+  if (gameState === 0) {
+    return (
+      <div className={styles.controlsContainer}>
+        <div className={styles.betContainer}>
+          <h4>Amount:</h4>
+          <input
+            autoFocus type='number' value={amount}
+            onChange={(e) => setAmount(Number(e.target.value))} className={inputStyle}
+          />
         </div>
-      );
-    }
-    else {
-      return (
-        <div className={styles.controlsContainer}>
-          <button onClick={() => hitEvent()} disabled={buttonState.hitDisabled} className={styles.button}>Hit</button>
-          <button onClick={() => standEvent()} disabled={buttonState.standDisabled} className={styles.button}>Stand</button>
-          <button onClick={() => resetEvent()} disabled={buttonState.resetDisabled} className={styles.button}>Reset</button>
-        </div>
-      );
-    }
+        <button onClick={() => onBetClick()} className={styles.button}>Bet</button>
+      </div>
+    );
+  } else {
+    return (
+      <div className={styles.controlsContainer}>
+        <button onClick={() => onHit()} disabled={buttonState.hitDisabled} className={styles.button}>Hit</button>
+        <button onClick={() => onStand()} disabled={buttonState.standDisabled} className={styles.button}>Stand</button>
+        <button onClick={() => onReset()} disabled={buttonState.resetDisabled} className={styles.button}>Reset</button>
+      </div>
+    );
   }
-
-  return (
-    <>
-      {getControls()}
-    </>
-  );
 }
 
 export default Controls;

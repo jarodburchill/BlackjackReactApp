@@ -1,42 +1,39 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import Status from './Status';
 import Controls from './Controls';
 import Hand from './Hand';
-import jsonData from '../deck.json';
+import { Card, Suit } from '../sharedTypes'
+import standardDeck from '../deck';
+import calculateHandValue from '../calculateHandValue';
+
+enum GameState {
+  bet,
+  init,
+  userTurn,
+  dealerTurn,
+  handEnded
+}
+
+enum Deal {
+  user,
+  dealer,
+  hidden
+}
+
+enum Message {
+  bet = 'Place a Bet!',
+  hitStand = 'Hit or Stand?',
+  bust = 'Bust!',
+  userWin = 'You Win!',
+  dealerWin = 'Dealer Wins!',
+  tie = 'Tie!'
+}
 
 const App: React.FC = () => {
-  enum GameState {
-    bet,
-    init,
-    userTurn,
-    dealerTurn
-  }
+  const [deck, setDeck] = useState<Card[]>(standardDeck);
 
-  enum Deal {
-    user,
-    dealer,
-    hidden
-  }
-
-  enum Message {
-    bet = 'Place a Bet!',
-    hitStand = 'Hit or Stand?',
-    bust = 'Bust!',
-    userWin = 'You Win!',
-    dealerWin = 'Dealer Wins!',
-    tie = 'Tie!'
-  }
-
-  const data = JSON.parse(JSON.stringify(jsonData.cards));
-  const [deck, setDeck]: any[] = useState(data);
-
-  const [userCards, setUserCards]: any[] = useState([]);
-  const [userScore, setUserScore] = useState(0);
-  const [userCount, setUserCount] = useState(0);
-
-  const [dealerCards, setDealerCards]: any[] = useState([]);
-  const [dealerScore, setDealerScore] = useState(0);
-  const [dealerCount, setDealerCount] = useState(0);
+  const [userCards, setUserCards] = useState<Card[]>([]);
+  const [dealerCards, setDealerCards] = useState<Card[]>([]);
 
   const [balance, setBalance] = useState(100);
   const [bet, setBet] = useState(0);
@@ -49,61 +46,16 @@ const App: React.FC = () => {
     resetDisabled: true
   });
 
-  useEffect(() => {
-    if (gameState === GameState.init) {
-      drawCard(Deal.user);
-      drawCard(Deal.hidden);
-      drawCard(Deal.user);
-      drawCard(Deal.dealer);
-      setGameState(GameState.userTurn);
-      setMessage(Message.hitStand);
-    }
-  }, [gameState]);
-
-  useEffect(() => {
-    calculate(userCards, setUserScore);
-    setUserCount(userCount + 1);
-  }, [userCards]);
-
-  useEffect(() => {
-    calculate(dealerCards, setDealerScore);
-    setDealerCount(dealerCount + 1);
-  }, [dealerCards]);
-
-  useEffect(() => {
-    if (gameState === GameState.userTurn) {
-      if (userScore === 21) {
-        buttonState.hitDisabled = true;
-        setButtonState({ ...buttonState });
-      }
-      else if (userScore > 21) {
-        bust();
-      }
-    }
-  }, [userCount]);
-
-  useEffect(() => {
-    if (gameState === GameState.dealerTurn) {
-      if (dealerScore >= 17) {
-        checkWin();
-      }
-      else {
-        drawCard(Deal.dealer);
-      }
-    }
-  }, [dealerCount]);
+  const dealerScore = calculateHandValue(dealerCards)
+  const userScore = calculateHandValue(userCards)
 
   const resetGame = () => {
     console.clear();
-    setDeck(data);
+    setDeck(standardDeck);
 
     setUserCards([]);
-    setUserScore(0);
-    setUserCount(0);
 
     setDealerCards([]);
-    setDealerScore(0);
-    setDealerCount(0);
 
     setBet(0);
 
@@ -122,106 +74,31 @@ const App: React.FC = () => {
     setGameState(GameState.init);
   }
 
-  const drawCard = (dealType: Deal) => {
+  const dealCard = useCallback((dealType: Deal, value: string, suit: Suit) => {
+    if (dealType === Deal.user) {
+      userCards.push({ 'value': value, 'suit': suit, 'hidden': false });
+      setUserCards([...userCards]);
+    } else {
+      dealerCards.push({ 'value': value, 'suit': suit, 'hidden': dealType === Deal.hidden });
+      setDealerCards([...dealerCards]);
+    }
+  }, [dealerCards, userCards])
+
+  const drawCard = useCallback((dealType: Deal) => {
     if (deck.length > 0) {
       const randomIndex = Math.floor(Math.random() * deck.length);
       const card = deck[randomIndex];
       deck.splice(randomIndex, 1);
       setDeck([...deck]);
       console.log('Remaining Cards:', deck.length);
-      switch (card.suit) {
-        case 'spades':
-          dealCard(dealType, card.value, '♠');
-          break;
-        case 'diamonds':
-          dealCard(dealType, card.value, '♦');
-          break;
-        case 'clubs':
-          dealCard(dealType, card.value, '♣');
-          break;
-        case 'hearts':
-          dealCard(dealType, card.value, '♥');
-          break;
-        default:
-          break;
-      }
-    }
-    else {
+      dealCard(dealType, card.value, card.suit);
+    } else {
       alert('All cards have been drawn');
     }
-  }
-
-  const dealCard = (dealType: Deal, value: string, suit: string) => {
-    switch (dealType) {
-      case Deal.user:
-        userCards.push({ 'value': value, 'suit': suit, 'hidden': false });
-        setUserCards([...userCards]);
-        break;
-      case Deal.dealer:
-        dealerCards.push({ 'value': value, 'suit': suit, 'hidden': false });
-        setDealerCards([...dealerCards]);
-        break;
-      case Deal.hidden:
-        dealerCards.push({ 'value': value, 'suit': suit, 'hidden': true });
-        setDealerCards([...dealerCards]);
-        break;
-      default:
-        break;
-    }
-  }
+  }, [dealCard, deck])
 
   const revealCard = () => {
-    dealerCards.filter((card: any) => {
-      if (card.hidden === true) {
-        card.hidden = false;
-      }
-      return card;
-    });
-    setDealerCards([...dealerCards])
-  }
-
-  const calculate = (cards: any[], setScore: any) => {
-    let total = 0;
-    cards.forEach((card: any) => {
-      if (card.hidden === false && card.value !== 'A') {
-        switch (card.value) {
-          case 'K':
-            total += 10;
-            break;
-          case 'Q':
-            total += 10;
-            break;
-          case 'J':
-            total += 10;
-            break;
-          default:
-            total += Number(card.value);
-            break;
-        }
-      }
-    });
-    const aces = cards.filter((card: any) => {
-      return card.value === 'A';
-    });
-    aces.forEach((card: any) => {
-      if (card.hidden === false) {
-        if ((total + 11) > 21) {
-          total += 1;
-        }
-        else if ((total + 11) === 21) {
-          if (aces.length > 1) {
-            total += 1;
-          }
-          else {
-            total += 11;
-          }
-        }
-        else {
-          total += 11;
-        }
-      }
-    });
-    setScore(total);
+    setDealerCards([...dealerCards.map(card => ({...card, hidden: false}))])
   }
 
   const hit = () => {
@@ -229,35 +106,63 @@ const App: React.FC = () => {
   }
 
   const stand = () => {
-    buttonState.hitDisabled = true;
-    buttonState.standDisabled = true;
-    buttonState.resetDisabled = false;
-    setButtonState({ ...buttonState });
+    setButtonState({ hitDisabled: true, standDisabled: true, resetDisabled: false });
     setGameState(GameState.dealerTurn);
     revealCard();
   }
 
-  const bust = () => {
-    buttonState.hitDisabled = true;
-    buttonState.standDisabled = true;
-    buttonState.resetDisabled = false;
-    setButtonState({ ...buttonState });
+  const bust = useCallback(() => {
+    setButtonState({ hitDisabled: true, standDisabled: true, resetDisabled: false });
     setMessage(Message.bust);
-  }
+  }, [])
 
-  const checkWin = () => {
+  const checkWin = useCallback(() => {
     if (userScore > dealerScore || dealerScore > 21) {
-      setBalance(Math.round((balance + (bet * 2)) * 100) / 100);
+      setBalance(currentBalance => Math.round((currentBalance + (bet * 2)) * 100) / 100);
       setMessage(Message.userWin);
+      setGameState(GameState.handEnded);
     }
     else if (dealerScore > userScore) {
       setMessage(Message.dealerWin);
     }
     else {
-      setBalance(Math.round((balance + (bet * 1)) * 100) / 100);
+      setBalance(currentBalance => Math.round((currentBalance + (bet * 1)) * 100) / 100);
       setMessage(Message.tie);
     }
-  }
+  }, [bet, dealerScore, userScore])
+
+  useEffect(() => {
+    if (gameState === GameState.init) {
+      drawCard(Deal.user);
+      drawCard(Deal.hidden);
+      drawCard(Deal.user);
+      drawCard(Deal.dealer);
+      setGameState(GameState.userTurn);
+      setMessage(Message.hitStand);
+    }
+  }, [drawCard, gameState]);
+
+  useEffect(() => {
+    if (gameState === GameState.userTurn) {
+      if (userScore === 21) {
+        setButtonState(prevButtonState => ({ ...prevButtonState, hitDisabled: true }));
+      }
+      else if (userScore > 21) {
+        bust();
+      }
+    }
+  }, [bust, gameState, userScore]);
+
+  useEffect(() => {
+    if (gameState === GameState.dealerTurn) {
+      if (dealerScore >= 17) {
+        checkWin();
+      }
+      else {
+        drawCard(Deal.dealer);
+      }
+    }
+  }, [checkWin, drawCard, dealerScore, gameState]);
 
   return (
     <>
@@ -266,10 +171,10 @@ const App: React.FC = () => {
         balance={balance}
         gameState={gameState}
         buttonState={buttonState}
-        betEvent={placeBet}
-        hitEvent={hit}
-        standEvent={stand}
-        resetEvent={resetGame}
+        onBet={placeBet}
+        onHit={hit}
+        onStand={stand}
+        onReset={resetGame}
       />
       <Hand title={`Dealer's Hand (${dealerScore})`} cards={dealerCards} />
       <Hand title={`Your Hand (${userScore})`} cards={userCards} />
